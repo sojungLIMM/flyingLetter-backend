@@ -13,4 +13,9 @@ const MESSAGE = {
   INVAILD_OBJECT_ID: "유효하지 않은 object id입니다.",
 };
 
-module.exports = { RESPONSE, MESSAGE };
+const URL = {
+  DEFAULT_IMAGE:
+    "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+};
+
+module.exports = { RESPONSE, MESSAGE, URL };

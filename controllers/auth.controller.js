@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const createError = require("http-errors");
 
 const User = require("../models/User");
-const { RESPONSE, MESSAGE } = require("../constants");
+const { RESPONSE, MESSAGE, URL } = require("../constants");
 
 exports.handleLogin = async (req, res, next) => {
   try {
@@ -54,4 +54,58 @@ exports.handleLogin = async (req, res, next) => {
   } catch (err) {
     next(createError(err));
   }
+};
+
+exports.handleSignup = async (req, res, next) => {
+  const { id, password, nickname, country, language, lat, lng } = req.body;
+
+  const encryptPassword = await bcrypt.hash(
+    password,
+    Number(process.env.SALT_ROUND)
+  );
+
+  await User.create({
+    id,
+    password: encryptPassword,
+    nickname,
+    profileImage: req.file?.path ? req.file.path : URL.DEFAULT_IMAGE,
+    language,
+    country,
+    lat,
+    lng,
+  });
+
+  res.status(201).json({
+    result: RESPONSE.SUCCESS,
+  });
+};
+
+exports.checkSignupInfo = async (req, res, next) => {
+  const { id, nickname } = req.body;
+
+  if (id) {
+    const existedId = await User.findOne({ id });
+
+    if (existedId) {
+      next(createError(400, MESSAGE.EXISTED_ID), {
+        result: RESPONSE.FAIL,
+      });
+      return;
+    }
+  }
+
+  if (nickname) {
+    const existedNickname = await User.findOne({ nickname });
+
+    if (existedNickname) {
+      next(createError(400, MESSAGE.EXISTED_NICKNAME), {
+        result: RESPONSE.FAIL,
+      });
+      return;
+    }
+  }
+
+  res.status(200).json({
+    result: RESPONSE.SUCCESS,
+  });
 };
