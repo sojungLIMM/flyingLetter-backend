@@ -13,14 +13,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+const { verifyToken } = require("../middlewares/verifyToken");
 const {
   handleLogin,
   handleSignup,
   checkSignupInfo,
+  getInfo,
 } = require("../controllers/auth.controller");
 
 router.post("/login", handleLogin);
 router.post("/signup", upload.single("profileImage"), handleSignup);
 router.post("/signup/check", checkSignupInfo);
+router.get("/users", verifyToken, getInfo);
 
 module.exports = router;

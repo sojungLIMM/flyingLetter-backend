@@ -109,3 +109,27 @@ exports.checkSignupInfo = async (req, res, next) => {
     result: RESPONSE.SUCCESS,
   });
 };
+
+exports.getInfo = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId).lean();
+
+    res.status(200).json({
+      result: "success",
+      data: {
+        user: {
+          _id: user._id,
+          id: user.id,
+          nickname: user.nickname,
+          profileImage: user.profileImage,
+          country: user.country,
+          language: user.language,
+          lat: user.lat,
+          lng: user.lng,
+        },
+      },
+    });
+  } catch (error) {
+    next(createError(error));
+  }
+};
