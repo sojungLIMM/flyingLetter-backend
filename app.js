@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const logger = require("morgan");
 
-const usersRouter = require("./routes/users");
+const authRouter = require("./routes/auth");
 const connectMongoDB = require("./loaders/mongooseLoader");
 
 const app = express();
@@ -14,12 +14,17 @@ const app = express();
 connectMongoDB();
 
 app.use(logger("dev"));
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use("/users", usersRouter);
+app.use("/api/auth", authRouter);
 
 app.use((req, res, next) => {
   next(createError(404));
@@ -36,6 +41,10 @@ app.use((err, req, res, next) => {
     });
 
     return;
+  }
+
+  if (err.statusCode === 500) {
+    err.message = "Internal Server Error";
   }
 
   res.json({
