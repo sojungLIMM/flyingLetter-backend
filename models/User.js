@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-  id: {
+  email: {
     type: String,
     trim: true,
     required: [true, "이메일은 반드시 필요합니다."],
-    unique: [true, "아이디는 중복될 수 없습니다."],
+    unique: [true, "이메일은 중복될 수 없습니다."],
   },
   password: {
     type: String,

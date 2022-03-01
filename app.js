@@ -7,6 +7,7 @@ const cors = require("cors");
 const logger = require("morgan");
 
 const authRouter = require("./routes/auth");
+const userRouter = require("./routes/users");
 const connectMongoDB = require("./loaders/mongooseLoader");
 
 const app = express();
@@ -25,6 +26,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
 
 app.use((req, res, next) => {
   next(createError(404));
