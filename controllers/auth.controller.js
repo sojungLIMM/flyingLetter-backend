@@ -7,11 +7,11 @@ const { RESPONSE, MESSAGE, URL } = require("../constants");
 
 exports.handleLogin = async (req, res, next) => {
   try {
-    const { id, password } = req.body;
-    const existedUser = await User.findOne({ id }).lean();
+    const { email, password } = req.body;
+    const existedUser = await User.findOne({ email }).lean();
 
     if (!existedUser) {
-      next(createError(400, MESSAGE.INVAILD_ID), {
+      next(createError(400, MESSAGE.INVAILD_EMAIL), {
         result: RESPONSE.FAIL,
       });
       return;
@@ -40,7 +40,7 @@ exports.handleLogin = async (req, res, next) => {
       data: {
         user: {
           _id: existedUser._id,
-          id: existedUser.id,
+          email: existedUser.email,
           nickname: existedUser.nickname,
           profileImage: existedUser.profileImage,
           country: existedUser.country,
@@ -51,63 +51,71 @@ exports.handleLogin = async (req, res, next) => {
         accessToken,
       },
     });
-  } catch (err) {
-    next(createError(err));
+  } catch (error) {
+    next(createError(error));
   }
 };
 
 exports.handleSignup = async (req, res, next) => {
-  const { id, password, nickname, country, language, lat, lng } = req.body;
+  try {
+    const { email, password, nickname, country, language, lat, lng } = req.body;
 
-  const encryptPassword = await bcrypt.hash(
-    password,
-    Number(process.env.SALT_ROUND)
-  );
+    const encryptPassword = await bcrypt.hash(
+      password,
+      Number(process.env.SALT_ROUND)
+    );
 
-  await User.create({
-    id,
-    password: encryptPassword,
-    nickname,
-    profileImage: req.file?.path ? req.file.path : URL.DEFAULT_IMAGE,
-    language,
-    country,
-    lat,
-    lng,
-  });
+    await User.create({
+      email,
+      password: encryptPassword,
+      nickname,
+      profileImage: req.file?.location ? req.file.location : URL.DEFAULT_IMAGE,
+      language,
+      country,
+      lat,
+      lng,
+    });
 
-  res.status(201).json({
-    result: RESPONSE.SUCCESS,
-  });
+    res.status(201).json({
+      result: RESPONSE.SUCCESS,
+    });
+  } catch (error) {
+    next(createError(error));
+  }
 };
 
 exports.checkSignupInfo = async (req, res, next) => {
-  const { id, nickname } = req.body;
+  try {
+    const { email, nickname } = req.body;
 
-  if (id) {
-    const existedId = await User.findOne({ id });
+    if (email) {
+      const existedEmail = await User.findOne({ email });
 
-    if (existedId) {
-      next(createError(400, MESSAGE.EXISTED_ID), {
-        result: RESPONSE.FAIL,
-      });
-      return;
+      if (existedEmail) {
+        next(createError(400, MESSAGE.EXISTED_EMAIL), {
+          result: RESPONSE.FAIL,
+        });
+        return;
+      }
     }
-  }
 
-  if (nickname) {
-    const existedNickname = await User.findOne({ nickname });
+    if (nickname) {
+      const existedNickname = await User.findOne({ nickname });
 
-    if (existedNickname) {
-      next(createError(400, MESSAGE.EXISTED_NICKNAME), {
-        result: RESPONSE.FAIL,
-      });
-      return;
+      if (existedNickname) {
+        next(createError(400, MESSAGE.EXISTED_NICKNAME), {
+          result: RESPONSE.FAIL,
+        });
+        return;
+      }
     }
-  }
 
-  res.status(200).json({
-    result: RESPONSE.SUCCESS,
-  });
+    res.status(200).json({
+      result: RESPONSE.SUCCESS,
+    });
+  } catch (error) {
+    next(createError(error));
+  }
 };
 
 exports.getInfo = async (req, res, next) => {
@@ -115,11 +123,11 @@ exports.getInfo = async (req, res, next) => {
     const user = await User.findById(req.userId).lean();
 
     res.status(200).json({
-      result: "success",
+      result: RESPONSE.SUCCESS,
       data: {
         user: {
           _id: user._id,
-          id: user.id,
+          email: user.email,
           nickname: user.nickname,
           profileImage: user.profileImage,
           country: user.country,
