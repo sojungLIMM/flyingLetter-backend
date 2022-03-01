@@ -51,63 +51,71 @@ exports.handleLogin = async (req, res, next) => {
         accessToken,
       },
     });
-  } catch (err) {
-    next(createError(err));
+  } catch (error) {
+    next(createError(error));
   }
 };
 
 exports.handleSignup = async (req, res, next) => {
-  const { id, password, nickname, country, language, lat, lng } = req.body;
+  try {
+    const { id, password, nickname, country, language, lat, lng } = req.body;
 
-  const encryptPassword = await bcrypt.hash(
-    password,
-    Number(process.env.SALT_ROUND)
-  );
+    const encryptPassword = await bcrypt.hash(
+      password,
+      Number(process.env.SALT_ROUND)
+    );
 
-  await User.create({
-    id,
-    password: encryptPassword,
-    nickname,
-    profileImage: req.file?.path ? req.file.path : URL.DEFAULT_IMAGE,
-    language,
-    country,
-    lat,
-    lng,
-  });
+    await User.create({
+      id,
+      password: encryptPassword,
+      nickname,
+      profileImage: req.file?.location ? req.file.location : URL.DEFAULT_IMAGE,
+      language,
+      country,
+      lat,
+      lng,
+    });
 
-  res.status(201).json({
-    result: RESPONSE.SUCCESS,
-  });
+    res.status(201).json({
+      result: RESPONSE.SUCCESS,
+    });
+  } catch (error) {
+    next(createError(error));
+  }
 };
 
 exports.checkSignupInfo = async (req, res, next) => {
-  const { id, nickname } = req.body;
+  try {
+    const { id, nickname } = req.body;
 
-  if (id) {
-    const existedId = await User.findOne({ id });
+    if (id) {
+      const existedId = await User.findOne({ id });
 
-    if (existedId) {
-      next(createError(400, MESSAGE.EXISTED_ID), {
-        result: RESPONSE.FAIL,
-      });
-      return;
+      if (existedId) {
+        next(createError(400, MESSAGE.EXISTED_ID), {
+          result: RESPONSE.FAIL,
+        });
+        return;
+      }
     }
-  }
 
-  if (nickname) {
-    const existedNickname = await User.findOne({ nickname });
+    if (nickname) {
+      const existedNickname = await User.findOne({ nickname });
 
-    if (existedNickname) {
-      next(createError(400, MESSAGE.EXISTED_NICKNAME), {
-        result: RESPONSE.FAIL,
-      });
-      return;
+      if (existedNickname) {
+        next(createError(400, MESSAGE.EXISTED_NICKNAME), {
+          result: RESPONSE.FAIL,
+        });
+        return;
+      }
     }
-  }
 
-  res.status(200).json({
-    result: RESPONSE.SUCCESS,
-  });
+    res.status(200).json({
+      result: RESPONSE.SUCCESS,
+    });
+  } catch (error) {
+    next(createError(error));
+  }
 };
 
 exports.getInfo = async (req, res, next) => {
