@@ -15,7 +15,7 @@ const LetterSchema = new mongoose.Schema({
     type: String,
     required: [true, "편지 내용은 반드시 필요합니다."],
   },
-  letterPaperImage: {
+  letterWallPaper: {
     type: String,
   },
   arrivedAt: {
