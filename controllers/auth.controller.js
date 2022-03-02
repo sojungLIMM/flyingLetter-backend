@@ -69,7 +69,7 @@ exports.handleSignup = async (req, res, next) => {
       email,
       password: encryptPassword,
       nickname,
-      profileImage: req.file?.location ? req.file.location : URL.DEFAULT_IMAGE,
+      profileImage: req.file ? req.file.location : URL.DEFAULT_IMAGE,
       language,
       country,
       lat,
