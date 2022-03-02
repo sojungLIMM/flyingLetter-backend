@@ -1,7 +1,9 @@
+const mongoose = require("mongoose");
 const createError = require("http-errors");
 
 const User = require("../models/User");
-const { RESPONSE } = require("../constants");
+const Letter = require("../models/Letter");
+const { RESPONSE, MESSAGE } = require("../constants");
 
 exports.getAll = async (req, res, next) => {
   try {
@@ -28,6 +30,33 @@ exports.getAll = async (req, res, next) => {
         users,
         isNext,
       },
+    });
+  } catch (error) {
+    next(createError(error));
+  }
+};
+
+exports.createLetter = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      next(createError(400, MESSAGE.INVAILD_OBJECT_ID));
+      return;
+    }
+
+    const { from, to, content, arrivedAt } = req.body;
+
+    await Letter.create({
+      from,
+      to,
+      content,
+      arrivedAt,
+      letterPaperImage: req.file ? req.file.location : "",
+    });
+
+    res.status(201).json({
+      result: RESPONSE.SUCCESS,
     });
   } catch (error) {
     next(createError(error));
