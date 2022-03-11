@@ -44,13 +44,21 @@ exports.createLetter = async (req, res, next) => {
       return;
     }
 
-    const { from, to, content, arrivedAt } = req.body;
+    const { from, to, content, arrivedAt, lat, lng, letterId, newFromLat, newFromLng } = req.body;
+
+    if (letterId) {
+      await Letter.findByIdAndDelete(letterId);
+    }
 
     await Letter.create({
       from,
       to,
       content,
       arrivedAt,
+      lat,
+      lng,
+      newFromLat,
+      newFromLng,
       letterWallPaper: req.file ? req.file.location : "",
     });
 
@@ -79,10 +87,15 @@ exports.getLetters = async (req, res, next) => {
       const inTransitLetterCount = await Letter
         .find({ to: userId, arrivedAt: { $gt: new Date(today) } })
         .countDocuments();
+      const leavedLetters = await Letter
+        .find({ to: { $exists: false } })
+        .populate("from")
+        .lean();
 
       res.status(200).json({
         result: RESPONSE.SUCCESS,
         data: {
+          leavedLetters,
           counts: {
             deliveredLetterCount,
             inTransitLetterCount,

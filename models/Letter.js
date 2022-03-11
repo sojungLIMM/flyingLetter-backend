@@ -8,7 +8,6 @@ const LetterSchema = new mongoose.Schema({
   },
   to: {
     type: mongoose.Schema.Types.ObjectId,
-    required: [true, "받는 사람은 반드시 필요합니다."],
     ref: "User",
   },
   content: {
@@ -20,8 +19,19 @@ const LetterSchema = new mongoose.Schema({
   },
   arrivedAt: {
     type: Date,
-    required: [true, "도착 시간은 반드시 필요합니다."],
-  }
+  },
+  lat: {
+    type: Number,
+  },
+  lng: {
+    type: Number,
+  },
+  newFromLat: {
+    type: Number,
+  },
+  newFromLng: {
+    type: Number,
+  },
 });
 
 module.exports = mongoose.model("Letter", LetterSchema);

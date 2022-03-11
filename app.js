@@ -25,6 +25,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+app.get("/", (req, res, next) =>
+  res.status(200).json({
+    message: "success",
+  })
+);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 
